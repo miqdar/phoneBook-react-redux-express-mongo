@@ -8,22 +8,23 @@ const request = axios.create({
 
 
 // start load chat data
-const loadChatSuccess = (chats1) => ({
+const loadChatSuccess = (chats1, isiPage) => ({
     type: 'LOAD_CHAT_SUCCESS',
-    chats1
+    chats1, isiPage
 })
 
 const loadChatFailure = () => ({
     type: 'LOAD_CHAT_FAILURE'
 })
 
-export const loadChat = () => {
+export const loadChat = (page) => {
     return dispatch => {
-        return request.get('chats')
+        if (!page) { page = '1' }
+        return request.get(`chats/?page=${page}`)
             .then(function (response) {
-                console.log('tes2')
-                dispatch(loadChatSuccess(response.data))
-                console.log('tes4')
+                let isiPage = response.data[response.data.length-1]
+                response.data.pop()
+                dispatch(loadChatSuccess(response.data, isiPage))
             })
             .catch(function (error) {
                 console.error(error);
@@ -35,8 +36,7 @@ export const loadChat = () => {
 
 // start post chat data
 const postChatSuccess = (id) => ({
-    type: 'POST_CHAT_SUCCESS',
-    id
+    type: 'POST_CHAT_SUCCESS', id
 })
 
 const postChatFailure = (id) => ({
@@ -54,6 +54,7 @@ export const postChat = (author, message) => {
         return request.post('chats', { id, author, message })
             .then(function (response) {
                 dispatch(postChatSuccess(id))
+                dispatch(loadChat(1))
             })
             .catch(function (error) {
                 console.error(error);
@@ -82,8 +83,7 @@ const deleteChatRedux = (id) => ({
 })
 
 const deleteChatSuccess = (id) => ({
-    type: 'DELETE_CHAT_SUCCESS',
-    id
+    type: 'DELETE_CHAT_SUCCESS', id
 })
 
 const deleteChatFailure = () => ({
@@ -96,7 +96,8 @@ export const deleteChat = (id) => {
         dispatch(deleteChatRedux(id))
         return request.delete(`chats/${id}`)
             .then(function (response) {
-                dispatch(deleteChatSuccess(response.data))
+                dispatch(deleteChatSuccess(response.data.id))
+                dispatch(loadChat(1))
             })
             .catch(function (error) {
                 console.error(error);
@@ -113,6 +114,7 @@ const loadEdit = (id) => ({
 })
 
 export const truekanEdit = (id) => {
+    console.log('truekan')
     return dispatch => {
         dispatch(loadEdit(id))
     }
@@ -122,19 +124,9 @@ const falseEdit = (id) => ({
     type: 'FALSE_EDIT', id
 })
 
-export const falsekanEdit = (id) => {
-    return dispatch => {
-        dispatch(falseEdit(id))
-    }
-}
-
-
-const cancelStateEdit = (id) => ({
-    type: 'CANCEL_EDIT', id
-})
 export const cancelEdit = (id) => {
     return dispatch => {
-        dispatch(cancelStateEdit(id))
+        dispatch(falseEdit(id))
     }
 }
 
@@ -154,9 +146,7 @@ const updateChatRedux = (id, author, message) => ({
 })
 
 export const updateChat = (id, author, message) => {
-    // let id = Date.now();
-    console.log(id, author, message)
-    return dispatch => {
+    return dispatch => {       
         dispatch(updateChatRedux(id, author, message))
         return request.put(`chats/${id}`, { author, message })
             .then(function (response) {
@@ -168,3 +158,24 @@ export const updateChat = (id, author, message) => {
             });
     }
 }
+
+
+// start search chat
+export const searchChat = (author, message) => {
+    return dispatch => {
+        if (message === '') { message = '9x9x' }
+        if (author === '') { author = '9x9x' }
+        return request.get(`chats/${author}/${message}`)
+            .then(function (response) {
+                let isiPage = response.data[response.data.length-1]
+                response.data.pop()
+                dispatch(loadChatSuccess(response.data, isiPage))
+                
+            })
+            .catch(function (error) {
+                console.error(error);
+                dispatch(loadChatFailure())
+            });
+    }
+}
+

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { updateChat } from '../actions';
 
-class ChatForm extends React.Component {
+class ChatItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -21,17 +21,12 @@ class ChatForm extends React.Component {
     }
 
     handleSubmit = (event) => {
-        console.log('aa')
+        event.preventDefault();
         this.props.updateChat(this.state.id, this.state.author, this.state.message);
         this.setState({ author: '', message: '' })
-        event.preventDefault();
     }
 
-    cancelEdit = (event) => {
-        console.log('cancel yah')
-        
-        event.preventDefault();
-    }
+    
 
     render() {
         if (this.props.edit) {
@@ -52,7 +47,7 @@ class ChatForm extends React.Component {
                                 onClick={this.handleSubmit}>Update
                             </button>
                             <button type="button" className="btn d-block w-100 d-sm-inline-block btn-secondary"
-                                onClick={this.props.falsekanEdit}>Cancel
+                                onClick={this.props.cancelEdit}>Cancel
                             </button>
                         </div>
                     </div>
@@ -74,7 +69,7 @@ class ChatForm extends React.Component {
                                 </li>
                                 <li className="mr-md-4">
                                     <i className="zmdi zmdi-pin mr-2"></i> Bandung
-                        </li>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -87,7 +82,6 @@ class ChatForm extends React.Component {
                         </button>
                     </div>
                 </div>
-
             )
         }
     }
@@ -100,4 +94,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
     null,
     mapDispatchToProps
-)(ChatForm)
+)(ChatItem)

@@ -4,21 +4,39 @@ const Chat = require('../models/chat')
 
 
 router.get('/', function (req, res, next) {
-  // Chat.find({}).sort({ 'id': -1 }).then((data) => {    // sort yg terbaru diatas
-  Chat.find({}).then((data) => {
-    res.status(200).json(data)
-  }).catch((err) => {
-    res.status(500).json(err)
+  // Chat.find({}).limit(limit).skip(offset).then((data) => {
+  let url = req.url == '/' ? '/?page=1' : req.url;
+  let page = req.query.page || 1
+  let start = page * 3 - 3
+  let limit = 3
+  let offset = (page - 1) * limit
+  Chat.countDocuments({}, (err, pages) => {
+    pages = Math.ceil(pages / limit)
+    Chat.find({}).sort({ 'id': -1 }).limit(limit).skip(offset).then((data) => {    // sort yg terbaru diatas
+      data.push({ pages, page })
+      res.status(200).json(data)
+    }).catch((err) => {
+      res.status(500).json(err)
+    })
   })
+
 });
 
 router.get('/:author/:message', function (req, res, next) {
-  // Chat.find({}).sort({ 'id': -1 }).then((data) => {    // sort yg terbaru diatas
-  Chat.find({$or: [{author: req.params.author}, {message: req.params.message}] }).then((data) => {
-    console.log('carii')
-    res.status(200).json(data)
-  }).catch((err) => {
-    res.status(500).json(err)
+  let url = req.url == '/' ? '/?page=1' : req.url;
+
+  let page = req.query.page || 1
+  let start = page * 3 - 3
+  let limit = 3
+  let offset = (page - 1) * limit
+  Chat.countDocuments({}, (err, pages) => {
+    pages = Math.ceil(pages / limit)
+    Chat.find({ $or: [{ author: req.params.author }, { message: req.params.message }] }).then((data) => {
+      data.push({ pages, page })
+      res.status(200).json(data)
+    }).catch((err) => {
+      res.status(500).json(err)
+    })
   })
 });
 

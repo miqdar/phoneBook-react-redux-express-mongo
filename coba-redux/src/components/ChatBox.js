@@ -4,7 +4,7 @@ import ChatList from '../containers/ChatList';
 
 
 export default class ChatBox extends Component {
-
+   
     render() {
         return (
             <div className="container">
@@ -22,7 +22,9 @@ export default class ChatBox extends Component {
                         <div className="career-search mb-60">
                             <ChatForm />
                             <ChatList />
+                            
                         </div>
+                            
                     </div>
                 </div>
             </div>
